@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" type="image/x-icon" href="public/gallery/favicon-32x32.png">
+
+	<title>Manage App</title>
+
+	<!-- Custom fonts for this template-->
+	<link href="https://kit-pro.fontawesome.com/releases/v5.15.3/css/pro.min.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500&display=swap" rel="stylesheet">
+
+	<!-- Custom styles for this template-->
+	<link href="public/css/bootstrap.min.css" rel="stylesheet">
+	<link href="public/css/styles.css" rel="stylesheet">
+</head>
+<body>
+	<div class="wrapper">
+		<div class="mb-content">
+			<div class="section p-3 px-4">
+				<div class="player">
+					<div class="media-player">
+						<div class="header">
+							<div class="title">Heisenberg Remix</div>
+						</div>
+						<div class="media">
+							<video src="public/gallery/audio/Heisenberg Remix.mp4"  />
+						</div>
+						<div class="controls">
+							<div class="button" data-action="playpause">
+								<i class="fal fa-play"></i>
+							</div>
+							<progress min='0' max='100' value='0'></progress>
+							<div class="time">00:00:00</div>
+							<div class="button" data-action="fullscreen">
+								<i class="fal fa-expand-alt"></i>
+							</div>
+							<div class="button" data-action="menu">
+								<i class="fal fa-bars"></i>
+							</div>
+						</div>
+					</div>
+					<div class="list">
+					</div>
+					<div class="bg"></div>
+					<div class="templates" style="display:none">
+						<div class="media-item">
+							<div class="thumbnail">
+								<img src="https://img.grouponcdn.com/deal/5EXVDNMDEe1mtyEK6Pgp/ZC-1057x634/v1/c700x420.jpg" />
+							</div>
+							<div class="info">
+								<div class="title">Title</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="public/js/bootstrap.min.js"></script>
+	<script>
+
+	var videos = [
+	{
+		title: 'Heisenberg Remix',
+		url: 'public/gallery/audio/Heisenberg Remix.mp4',
+		thumbnail: 'public/gallery/audio/HeisenbergRemixMp4.jpg'
+	},
+	{
+		title: 'Da Da Da',
+		url: 'public/gallery/audio/Dadada.mp4',
+		thumbnail: 'public/gallery/audio/Dadada.jpg'
+	}
+	]
+
+	document.addEventListener('DOMContentLoaded', function() {
+
+		var _bg = document.querySelector('.bg');
+		var _video = document.querySelector('video');
+		var _title = document.querySelector('.header .title');
+		var _description = document.querySelector('.header .description');
+		var _time = document.querySelector('.time');
+
+		var loadVideo = function(url, title, thumbnail) {
+			_video.src = url;
+			_title.innerHTML = title;
+			_bg.style.backgroundImage = 'url(' + thumbnail + ')';
+			_video.play();
+		}
+
+  // Render video list
+  
+  var _list = document.querySelector('.list');
+  var _listItem = document.querySelector('.media-item');
+  var _listToggle = document.querySelector('[data-action = menu]');
+  
+  videos.forEach(function(video) {
+  	var _newListItem = _listItem.cloneNode(true);
+  	_newListItem.querySelector('.thumbnail').innerHTML = "<img src='" + video.thumbnail + "' />"
+  	_newListItem.querySelector('.title').innerHTML = video.title;
+  	_newListItem.addEventListener('click', function() {
+  		_list.querySelector('.active') && _list.querySelector('.active').classList.remove('active');
+  		_newListItem.classList.add('active');
+  		loadVideo(video.url, video.title, video.thumbnail);
+  	});
+  	_list.appendChild(_newListItem);
+  });
+  
+  _listToggle.addEventListener('click', function() {
+  	toggle(_list);
+  });
+  
+  
+  // Map custom video controls
+  
+  var _header = document.querySelector('.header');
+  var _controls = document.querySelector('.controls');
+  var _playpause = _controls.querySelector('[data-action=playpause]');
+  var _fullscreen = _controls.querySelector('[data-action=fullscreen]');
+  var _progress = _controls.querySelector('progress');
+  
+  _playpause.addEventListener('click', function() {
+  	if (_video.paused) {
+  		_video.play();
+  		_playpause.innerHTML = '<i class="fal fa-pause"></i>';
+  	}
+  	else {
+  		_video.pause();
+  		_playpause.innerHTML = '<i class="fal fa-play"></i>';
+  	}
+  });
+  
+  _fullscreen.addEventListener('click', function() {
+    //_video.webkitEnterFullscreen();
+    hide(_header);
+    hide(_controls);
+    hide(_list);
+ });
+  
+  document.addEventListener('keydown', function(e) {
+  	if (e.keyCode === 27) {
+  		show(_header);
+  		show(_controls);
+  		show(_list);
+  	}
+  });
+  
+  _video.addEventListener('click', function(e) {
+  	show(_controls);
+  	show(_header);
+  });
+  
+  _progress.addEventListener('click', function(e) {
+  	var x = (e.pageX  - this.offsetLeft) / this.offsetWidth;
+  	_video.currentTime = x * _video.duration;
+  });
+  
+  _video.addEventListener('loadedmetadata', function() {
+  	_progress.setAttribute('max', _video.duration);
+  });
+  
+  _video.addEventListener('ended', function() {
+  	_progress.value = _video.duration;
+  })
+  
+  _video.addEventListener('timeupdate', function() {
+  	var currentTime = Math.floor(_video.currentTime);
+  	var timeString = new Date(currentTime * 1000).toISOString().substr(11, 8);
+
+  	_progress.value = currentTime;
+  	_time.innerHTML = timeString;
+  });
+  
+});
+
+	function toggle(_e) {
+		requestAnimationFrame(function() {
+			_e.classList.contains('hidden') ? _e.classList.remove('hidden') : _e.classList.add('hidden');
+		});
+	}
+
+	function hide(_e) {
+		_e.classList.contains('hidden') ? undefined : _e.classList.add('hidden');
+	}
+
+	function show(_e) {
+		_e.classList.contains('hidden') ?  _e.classList.remove('hidden') : undefined;
+	}
+
+	</script>
+</body>
+</html>
